@@ -39,8 +39,8 @@ function initConnectData() {
         var table = layui.table;
 
         for (var row=0; row<lastConnData.length; row++) {
-            var html = '<i class="layui-icon eichong-icon" title="修改连接参数" onclick="updConnectData(' + row + ')"'+'>&#xe642;</i>';
-            html += '<i class="layui-icon eichong-icon" title="检查是否能连上" style="margin-left:5px" onclick="checkConnect(' + row + ')"'+'>&#xe66a;</i>';
+            var html = '<i class="layui-icon redisplus-icon" title="修改连接参数" onclick="updConnectData(' + row + ')"'+'>&#xe642;</i>';
+            html += '<i class="layui-icon redisplus-icon" title="检查是否能连上" style="margin-left:5px" onclick="checkConnect(' + row + ')"'+'>&#xe66a;</i>';
             lastConnData[row].op = html;
         }
         table.render({

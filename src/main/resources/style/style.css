@@ -34,7 +34,7 @@
     border-color: #1E9FFF !important;
 }
 
-.eichong-btn-normal {
+.redisplus-btn-normal {
     margin-left:5px;
     height:30px;
     line-height:30px;
@@ -43,7 +43,7 @@
     background-color:#1E9FFF;
 }
 
-.eichong-btn-small {
+.redisplus-btn-small {
     margin-left:5px;
     height:28px;
     line-height:28px;
@@ -52,7 +52,7 @@
     background-color:#1E9FFF;
 }
 
-.eichong-icon:hover {
+.redisplus-icon:hover {
     cursor: pointer;
     border: 1px solid grey;
 }

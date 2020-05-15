@@ -527,7 +527,7 @@ function show_key_vals(result) {
 
     if (keyInfo.type === 'string') {
         var html = '<textarea id="currVal" class="layui-textarea key-vals-text" jsonStr="'+ jsonStr +'">' + keyInfo.text + '</textarea>';
-        html += '<button class="layui-btn eichong-btn-small vals-commit-btn" onclick="updateStr()">';
+        html += '<button class="layui-btn redisplus-btn-small vals-commit-btn" onclick="updateStr()">';
         html += '<i class="layui-icon">&#x1005;</i>提交</button>';
         $("#vals4").html(html);
     } else {
@@ -589,8 +589,8 @@ function show_key_vals(result) {
             '<input type="text" id="vals-filter" class="vals-filter-input" ' +
             ' autocomplete="off" style="order:0" oninput="vals_filter()" placeholder="输入'+
             subItemName+'中关键字定位到相应行">';
-        html += '<i class="layui-icon eichong-icon" title="'+title1+'" style="order:1;margin-left:10px" onclick="'+insertFunc+'()">&#xe61f;</i>';
-        html += '<i class="layui-icon eichong-icon" title="'+title2+'" style="order:2;margin-left:5px" onclick="deleteVals('+type+')">&#xe640;</i></div>';
+        html += '<i class="layui-icon redisplus-icon" title="'+title1+'" style="order:1;margin-left:10px" onclick="'+insertFunc+'()">&#xe61f;</i>';
+        html += '<i class="layui-icon redisplus-icon" title="'+title2+'" style="order:2;margin-left:5px" onclick="deleteVals('+type+')">&#xe640;</i></div>';
         html += '<div class="data-table-box"><table id="key-vals-table" class="layui-table"></table></div>';
         $("#vals4").html(html);
 
@@ -599,7 +599,7 @@ function show_key_vals(result) {
         lastKeyVals = JSON.parse(keyInfo.json);
         var html;
         for (var row=0; row<lastKeyVals.length; row++) {
-            html = '<i class="layui-icon eichong-icon" title="'+title3+'" style="margin-left:1px" onclick="'+updateFunc+'(' + row + ')"'+'>&#xe642;</i>';
+            html = '<i class="layui-icon redisplus-icon" title="'+title3+'" style="margin-left:1px" onclick="'+updateFunc+'(' + row + ')"'+'>&#xe642;</i>';
             lastKeyVals[row].row = (row+1);
             lastKeyVals[row].op = html;
         }
