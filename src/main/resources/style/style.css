@@ -1,0 +1,201 @@
+
+/*  在此定一个各模块共用的显示效果    */
+
+@font-face {
+    font-family: 'ArchivoNarrow-Bold';
+    src: url('../font/ArchivoNarrow-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'ArialFromMac';
+    src: url('../font/ArialFromMac.ttf');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: ArialFromMac,ArchivoNarrow-Bold,SimSun,STHeiti,'Microsoft Yahei','Heiti SC';
+    font-size:13px;
+}
+
+::selection {
+    background: #b2d7fc;
+}
+::-moz-selection {
+    background: #b2d7fc;
+}
+::-webkit-selection {
+    background: #b2d7fc;
+}
+
+.layui-input:focus, .layui-textarea:focus {
+    border:2px solid #1E9FFF;
+    background: white;
+    border-color: #1E9FFF !important;
+}
+
+.eichong-btn-normal {
+    margin-left:5px;
+    height:30px;
+    line-height:30px;
+    font-size:13px;
+    border-radius:4px;
+    background-color:#1E9FFF;
+}
+
+.eichong-btn-small {
+    margin-left:5px;
+    height:28px;
+    line-height:28px;
+    font-size:12px;
+    border-radius:3px;
+    background-color:#1E9FFF;
+}
+
+.eichong-icon:hover {
+    cursor: pointer;
+    border: 1px solid grey;
+}
+
+/* 去掉table上下的间隙 */
+.layui-table, .layui-table-view {
+    margin: 0 0;
+}
+.layui-table td {
+    margin-left: 8px;
+}
+.layui-table td, .layui-table th {
+    color: black;
+}
+/* table分页时下面的按钮效果 */
+.layui-laypage .layui-laypage-curr .layui-laypage-em {
+    background-color: #1E9FFF;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+}
+
+::-webkit-scrollbar-button:start:decrement, ::-webkit-scrollbar-button:end:increment {
+    display: block;
+}
+
+::-webkit-scrollbar-button:vertical:start:increment, ::-webkit-scrollbar-button:vertical:end:decrement {
+    display: none;
+}
+
+::-webkit-scrollbar-corner {
+    display: block;
+}
+
+::-webkit-scrollbar-thumb {
+    background-clip: padding-box;
+    background-color: rgba(0, 0, 0, .2);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-clip: padding-box;
+    background-color: rgba(0, 0, 0, .5);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-track:vertical, ::-webkit-scrollbar-thumb:vertical {
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+}
+
+::-webkit-scrollbar-track:horizontal, ::-webkit-scrollbar-thumb:horizontal {
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+}
+
+::-webkit-scrollbar-track:hover {
+    background-clip: padding-box;
+    background-color: rgba(0, 0, 0, .15);
+}
+
+.root {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+}
+
+.topbar {
+    top: 0;
+    left: 0;
+    height: 70px;
+    width: 100%;
+    z-index: 1000;
+    color: #0C0C0C;
+    background-color: #CFE6F3;
+}
+
+.topbar-menu {
+    width: 75%;
+    float: left;
+}
+
+.topbar-menu-item {
+    width: 60px;
+    height: 60px;
+    float: left;
+    display: block;
+    margin-top: 5px;
+    margin-left: 10px;
+    border: 1px solid #CFE6F3;
+}
+
+.topbar-menu-item img {
+    width: 38px;
+    height: 38px;
+    display: block;
+    margin-top: 2px;
+    margin-left: 11px;
+}
+
+.topbar-menu-item span {
+    height: 20px;
+    color: #0C0C0C;
+    display: block;
+    font-size: 13px;
+    line-height: 22px;
+    text-align: center;
+}
+
+.topbar-menu-item:hover {
+    cursor: pointer;
+    border-radius: 10px;
+    border: 1px solid #1E9FFF;
+}
+
+.topbar-logo {
+    float: right;
+}
+
+.topbar-logo img {
+    margin-top: 10px;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.save-btns {
+    width: 90%;
+    height: auto;
+    margin-top: 20px;
+    text-align: right;
+}
+
+.layui-layer-lan .layui-layer-btn a {
+    color: white !important;
+    background: #1E9FFF !important;
+}

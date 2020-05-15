@@ -1,0 +1,17 @@
+#zset-data {
+    display: none;
+}
+
+#hash-data {
+    display: none;
+}
+
+.layui-form-item .layui-input-inline {
+    width: 304px;
+}
+
+.layui-input, .layui-select, .layui-textarea {
+    border: 1px solid grey;
+}
+
+

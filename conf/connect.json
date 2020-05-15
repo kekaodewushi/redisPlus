@@ -1,0 +1,14 @@
+[
+  {
+    "hosts": "10.8.2.250:6379",
+    "id": "7be4043910f0477dbbe020b19db6b90a",
+    "name": "localtest",
+    "pass": "1"
+  },
+  {
+    "hosts": "10.8.2.250:6379",
+    "id": "9065c7a4d9124ada945f47c544e58759",
+    "name": "localtest",
+    "pass": "1"
+  }
+]

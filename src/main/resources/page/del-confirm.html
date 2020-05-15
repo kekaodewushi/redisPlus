@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" type="text/css" href="../plugin/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+</head>
+
+<body>
+<div style="margin:20px;height:82px">
+    <label id="delConfirmLbl1" style="text-align:center;font-size:14px;color:red">数据被删除后将无法恢复! </label><br>
+    <label id="delConfirmLbl2" style="text-align:center;font-size:13px;word-break:break-all"></label>
+</div>
+<div class="save-btns">
+    <button id="delCommitBtn" class="layui-btn eichong-btn-small"/>删除</button>
+    <button id="delGobackBtn" class="layui-btn eichong-btn-small"/>取消</button>
+</div>
+
+<script type="text/javascript" src="../plugin/layui/layui.js"></script>
+<script type="text/javascript">
+    var $;
+    var layer;
+
+    var param = parent.delConfirmParam;
+
+    layui.use(['jquery', 'form', 'layer'], function () {
+        $ = layui.jquery;
+        layer = layui.layer;
+
+        var lbl = $("#delConfirmLbl2");
+        var msg = "确定要删除" + param.strType + ": " + param.id + " ?";
+
+        lbl.text(msg);
+
+        //监听提交
+        $("#delCommitBtn").on("click", function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+            param.callback();
+        });
+
+        //注册监听返回事件
+        $("#delGobackBtn").on("click", function () {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

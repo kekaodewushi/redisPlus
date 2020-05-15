@@ -1,0 +1,421 @@
+有zdytest:111:1后
+添加zdytest:111:1:1后
+然后点击别处，再添加zdytest:111:1:2后树挂接出错
+删除zdytest:111:1树，不应该删除zdytest:111:1
+搜索也不对，输入条件后，再点一下树，条件被清空了
+
+一、Redis所需的系统优化：
+
+su root
+sysctl -w net.core.somaxconn=65535
+echo 'vm.overcommit_memory = 1' >> /etc/sysctl.conf
+sysctl vm.overcommit_memory=1
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+echo never > /sys/kernel/mm/transparent_hugepage/enabled
+ulimit -n 65535
+su app
+
+
+二、准备文件
+
+***请以app用户名操作，不要以root操作
+
+---------------------------------------------
+1）本地上传或从https://redis.io/download下载：
+  redis-4.0.14.tar.gz
+放到：
+  /home/app
+然后tar zxvf解压
+
+---------------------------------------------
+2）本地上传或从https://redis.io/download下载：
+  redis-5.0.5.tar
+放到：
+  /home/app/redis-4.0.14
+然后tar zxvf解压
+
+---------------------------------------------
+3）nodes.conf内容为：
+2b821240bbca69f9c89a82a2e9fb18264ac7980e my_local_ip:6379@16379 myself,master - 0 1560845334000 4 connected 0-16383
+vars currentEpoch 4 lastVoteEpoch 0
+放到：
+  /home/app/redis-4.0.14/data
+然后按本地情况，设置my_local_ip：内网IP
+---------------------------------------------
+4）redis.conf内容为：
+#Change my_local_ip to host local ip
+bind my_local_ip
+
+daemonize yes
+pidfile /home/app/redis-4.0.14/redis.pid
+port 6379
+
+tcp-backlog 511
+timeout 0
+tcp-keepalive 300
+loglevel notice
+logfile /home/app/redis-4.0.14/redis.log
+
+databases 1
+always-show-logo yes
+
+stop-writes-on-bgsave-error yes
+rdbcompression yes
+rdbchecksum yes
+dbfilename dump.rdb
+
+dir /home/app/redis-4.0.14/data
+slave-serve-stale-data yes
+slave-read-only yes
+repl-diskless-sync no
+repl-diskless-sync-delay 5
+repl-disable-tcp-nodelay no
+
+slave-priority 100
+lazyfree-lazy-eviction yes
+lazyfree-lazy-expire yes
+lazyfree-lazy-server-del yes
+slave-lazy-flush yes
+
+#A long password required
+requirepass jiiwLK653@#piucj
+
+#12gb for 16gb host, 6gb for 8gb host
+maxmemory my_memory
+
+maxmemory-policy  volatile-lru
+
+appendonly yes
+appendfilename "appendonly.aof"
+appendfsync everysec
+no-appendfsync-on-rewrite no
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+aof-load-truncated yes
+aof-use-rdb-preamble yes
+
+lua-time-limit 5000
+slowlog-log-slower-than 10000
+slowlog-max-len 128
+latency-monitor-threshold 0
+notify-keyspace-events ""
+
+hash-max-ziplist-entries 512
+hash-max-ziplist-value 64
+list-max-ziplist-entries 512
+list-max-ziplist-value 64
+set-max-intset-entries 512
+list-max-ziplist-size -2
+list-compress-depth 0
+hll-sparse-max-bytes 3000
+
+activerehashing yes
+client-output-buffer-limit normal 0 0 0
+client-output-buffer-limit slave 256mb 64mb 60
+client-output-buffer-limit pubsub 32mb 8mb 60
+hz 10
+aof-rewrite-incremental-fsync yes
+
+rename-command FLUSHALL ""
+rename-command FLUSHDB ""
+rename-command EVAL     ""
+rename-command KEYS ""
+rename-command CONFIG   "configforcli"
+rename-command SHUTDOWN   "shutdownforcli"
+
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 15000
+cluster-slave-validity-factor 0
+cluster-migration-barrier 1
+cluster-require-full-coverage no
+cluster-slave-no-failover no
+
+放到：
+  /home/app/redis-4.0.14
+然后按本地情况，设置my_开头的3个参数：内网IP、密码和内存大小
+
+---------------------------------------------
+以root用户创建start.sh
+su
+vi start.sh
+
+start.sh内容为:
+mv redis.log redis.log.bak
+src/redis-server ./redis.conf
+cat redis.log
+ps -ef|grep redis
+
+放到：
+/home/app/redis-4.0.14
+然后chmod 744 设置权限
+
+三、编译
+
+***请以app用户名操作，不要以root操作
+***确保server.c已经包含了修改过的内容
+
+su app
+cd /home/app/redis-4.0.14
+cd deps
+make jemalloc
+cd ..
+make
+
+cd redis-5.0.5
+cd deps
+make jemalloc
+cd ..
+make
+
+四、升级操作步骤
+
+***请以app用户名操作，不要以root操作
+
+1）设置测试值
+cd /home/app/redis-4.0.14
+./src/redis-cli -h 10.29.30.231 -a jiiwLK653@#piucj
+set cluster_test_key 1
+get cluster_test_key
+exit
+
+2）不停服务备份appendonly.aof
+>> 另起一个console tab：
+ls -lat data
+
+>>在前一个tab：
+
+./redis-5.0.5/src/redis-cli -h 10.29.30.231 -a jiiwLK653@#piucj
+bgrewriteaof
+
+等写完后(data下/temp-开头的文件没有了)：
+configforcli SET  appendonly no
+
+>>另一个console tab
+通过
+ls -lat data
+看到appendonly.aof大小没改变之后：
+mv data/appendonly.aof data/appendonly.aof.bak
+
+>>在前一个tab的redis-cli里面输入：
+configforcli SET  appendonly yes
+
+>>另一个console tab
+通过
+ls -lat data
+看到 temp-rewriteaof-*.aof写完成后会重命名为appendonly.aof
+
+3）关闭之前的Redis
+./src/redis-cli  -h 10.29.30.231 -a jiiwLK653@#piucj
+shutdown 或 shutdownforcli
+
+4）为启动新的Redis准备数据
+mv /usr/local/redis/data/appendonly.aof /home/app/redis-4.0.14/data/
+chown app:app data/appendonly.aof
+chmod 666 data/appendonly.aof
+
+5）启动新redis
+su
+./start.sh
+ps -ef | grep redis
+cat redis.log
+./redis-5.0.5/src/redis-cli  -h 10.29.30.231 -a jiiwLK653@#piucj  --cluster fix 10.29.30.231:6379
+
+6）检查
+./redis-5.0.5/src/redis-cli  -h 10.29.30.231 -a jiiwLK653@#piucj  --cluster check 10.29.30.231:6379
+
+./src/redis-cli  -h 10.29.30.231 -a jiiwLK653@#piucj
+get cluster_test_key
+del cluster_test_key
+
+五、Redis恢复流程
+
+***请以app用户名操作，不要以root操作
+
+./stop.sh
+su root
+cd /usr/local/redis/data/
+mv appendonly.aof.bak appendonly.aof
+service redis start
+
+六、添加Redis集群Master节点
+
+***请以app用户名操作，不要以root操作
+***请先按第一步，做Redis所需的系统优化
+
+1）配置
+配置跟别的节点一样，IP或端口不同，无需data下面的两文件：appendonly.aof, nodes.conf
+***但需要data目录
+
+2）添加
+在之前已经存在的Master主机上：
+1）相互检查是否可达：
+su
+./start.sh
+
+ 在new_node上 ./redis-5.0.5/src/redis-cli -h 10.29.30.231 -a jiiwLK653@#piucj
+ 在10.29.30.231上 ./redis-5.0.5/src/redis-cli -h new_node_ip -a jiiwLK653@#piucj
+  在 10.29.30.231， telnet new_node_ip 16379
+  在 new_node_ip，telnet 10.29.30.231 16379
+2）在新节点输入命令加入Cluster：
+./redis-5.0.5/src/redis-cli -h new_node_ip -a jiiwLK653@#piucj --cluster add-node new_node_ip:6379  10.29.30.231:6379
+
+3）查看
+格式：Node_ID Node_Address Flags Master_If_Replica Ping_Ms Pong_Ms Epoch Link_state Slot_Range
+在之前已经存在的Master主机上：
+./redis-5.0.5/src/redis-cli -h 10.29.30.231 -a jiiwLK653@#piucj cluster nodes
+在新节点上：
+./redis-5.0.5/src/redis-cli -h new_node_ip -a jiiwLK653@#piucj cluster nodes
+
+4）不停服务备份appendonly.aof
+>> 另起一个console tab：
+ls -lat data
+
+>>在前一个tab：
+./redis-5.0.5/src/redis-cli -h 10.29.30.231 -a jiiwLK653@#piucj
+
+configforcli SET  appendonly no
+
+>>另一个console tab
+通过
+ls -lat data
+看到appendonly.aof大小没改变之后：
+mv data/appendonly.aof data/appendonly.aof.bak
+
+>>在前一个tab的redis-cli里面输入：
+configforcli SET  appendonly yes
+
+>>另一个console tab
+通过
+ls -lat data
+看到 temp-rewriteaof-*.aof写完成后会重命名为appendonly.aof
+
+5）在老节点所在tab，reshard：
+./redis-5.0.5/src/redis-cli -h 10.29.30.231 -a jiiwLK653@#piucj --cluster fix 10.29.30.231:6379
+./redis-5.0.5/src/redis-cli -h 10.29.30.231 -a jiiwLK653@#piucj --cluster reshard 10.29.30.231:6379 --cluster-from 2b821240bbca69f9c89a82a2e9fb18264ac7980e --cluster-to target_node_id --cluster-slots slot_num  --cluster-yes > reshard.log &
+tail -f reshard.log
+slots分2节点:  16384/2=8192，3节点： 16384/3=5461
+
+6）检查
+./redis-5.0.5/src/redis-cli  -h 10.29.30.231 -a jiiwLK653@#piucj --cluster check 10.29.30.231:6379
+
+七、添加Redis集群Slave节点
+
+***请以app用户名操作，不要以root操作
+***请先按第一步，做Redis所需的系统优化
+***都不能有此配置项，否则会莫名出错：cluster-announce-ip
+
+前面1、2、3）添加空白主节点同上
+4）所有的节点配置中添加（包括Slave节点自己）：
+  configforcli set masterauth jiiwLK653@#piucj
+  configforcli rewrite
+
+5） 添加从节点
+***需确保masterauth已经在 从节点 的配置中
+连上Slave节点：
+./redis-5.0.5/src/redis-cli  -h new_node_ip -a jiiwLK653@#piucj
+然后执行：
+CLUSTER REPLICATE 2b821240bbca69f9c89a82a2e9fb18264ac7980e或别的master
+添加后看日志可以看到同步状态
+
+执行命令允许读Slave：
+READONLY
+
+八、删除节点
+1）reshard，让待删除的节点的slots为0
+2）./redis-5.0.5/src/redis-cli -h 10.29.30.231 -a jiiwLK653@#piucj --cluster del-node 127.0.0.1:6379 node-id
+
+九、重置Cluster状态
+./redis-5.0.5/src/redis-cli  -h 10.29.30.231 -p 8000 -a jiiwLK653@#piucj CLUSTER RESET
+
+十、更改密码
+
+***请以app用户名操作，不要以root操作
+
+1）修改前auth命令错误重现：
+以用户名app登录
+cd redis-4.0.14
+./src/redis-cli -h 10.29.30.231
+auth jiiwLK653@#piucj
+configforcli set requirepass ""
+auth kdakfjei
+
+应该会返回错误：
+Client sent AUTH, but no password is set
+
+2）代码改动部分（删除红色，增加绿色）：
+以用户名app登录
+cd redis-4.0.14
+vi src/server.c
+
+void authCommand(client *c) {
+    if (!server.requirepass) {
+    /* Modified by ZDY: 当server配置成不需要密码的时候，
+     * 收到客户端auth命令时，不返回错误，返回成功 */
+      // addReplyError(c,"Client sent AUTH, but no password is set");
+      c->authenticated = 1;
+      addReply(c,shared.ok);
+    } else if (!time_independent_strcmp(c->argv[1]->ptr, server.requirepass)) {
+      c->authenticated = 1;
+      addReply(c,shared.ok);
+    } else {
+      c->authenticated = 0;
+      addReplyError(c,"invalid password");
+    }
+}
+
+然后在redis-4.0.14目录运行
+make
+
+3）重启：
+cd redis-4.0.14
+./src/redis-cli -h 10.29.30.231
+auth jiiwLK653@#piucj
+bgrewriteaof
+shutdownforcli
+exit
+
+通过下面命令检查是否退出：
+ps -ef | grep redis
+
+等进程退出后运行：
+start.sh
+
+4）测试是否生效：
+./src/redis-cli -h 10.29.30.231
+auth jiiwLK653@#piucj
+configforcli set requirepass ""
+auth kdakfjei
+auth jdioqjioq
+set cluster_test_key 134
+get cluster_test_key
+
+
+十一：Redis有主备后，万一Redis出状况手动切换：
+1）确保主Master不能访问
+
+2）去从节点，先关掉：
+./redis-5.0.5/src/redis-cli  -h 10.81.128.249 -a jiiwLK653@#piucj
+  shutdownforcli
+然后将nodes.conf内容改为默认值：
+2b821240bbca69f9c89a82a2e9fb18264ac7980e 10.81.128.249:6379@16379 myself,master - 0 1560845334000 4 connected 0-16383
+vars currentEpoch 4 lastVoteEpoch 0
+
+3）启动：
+su
+./start.sh
+
+4）阿里云里面改域名指向
+  redis1.eichtech.top new_ip
+  redis2.eichtech.top new_ip
+
+5) 改Redis地址为新地址，重启dpServer和user模块
+grep -nR 'redis' * --include "*.xml" --include "*.yml" --include "*.properties"
+
+6）修改各服务器里面的/ect/hosts的域名
+  new_ip redis1.eichtech.top
+  new_ip redis2.eichtech.top
+
+7）最后改Redis地址，重启assets、datacenter、activity
+
+8）关掉Master或者手动Failover
